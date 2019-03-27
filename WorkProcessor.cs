@@ -5,11 +5,6 @@ using UnityEngine;
 
 namespace WorkProcessorSpace
 {
-    public  enum GoWorkDefaultCommand
-    {
-        none 
-    }
-
     public class DoneIDData
     {
         public DoneIDData()
