@@ -1,0 +1,168 @@
+workProcessor manual
+
+
+
+目的:
+1.利用enum型別作為command,向workProcessor增加希望被執行的function,之後任何物件只要利用command即可無限制次數的執行希望的function,且具備低耦合度
+
+2.具備簡單的執行排程功能,可以利用這個功能而不用在自己的程式內撰寫排程功能
+
+
+
+文字說明：
+1.E commandType：enum型別的命令
+2.FunctionType func：方法
+3.Delegate:Delegate 型別
+4.DoneIDData:具有DoneId資料的class
+
+
+開關log:
+1.isShowLog: 設為true則會顯示log,設為false則不會顯示log
+2.isShowCaution: 設為true則會顯示開頭為CAUTION的log,設為false則不會顯示,但是isShowLog設為false的話也不會顯示開頭為CAUTION的log 
+
+
+
+公開function:
+
+一.增加希望被執行的function,一個function搭配一個enum型別的命令
+
+1.一般function
+AddWork<E>(E commandType,FunctionType func)
+
+2.有callback的function
+AddWork<E>(E commandType, FunctionType<Delegate> func)
+
+3.需要引入參數的function
+AddWork<E,T>(E commandType, FunctionType<T> func)
+
+4.需要引入參數且又有callback的function
+AddWork<E, T>(E commandType, FunctionType<T, Delegate> func)
+
+
+
+二.增加希望被執行且要進入排程的function,一個function搭配一個enum型別的命令
+
+注意：
+欲增加的function一定要有DoneIDData當第一個引入參數,而且程式執行完一定要執行ReportFinish(DoneIDData inData),不然workProcessor會認定該function未執行完畢
+
+1.一般function
+AddQueueWork<E>(E commandType,FunctionType<DoneIDData> func)
+
+2.有callback的function
+AddQueueWork<E>(E commandType, FunctionType<DoneIDData,Delegate> func)
+
+3.需要引入參數的function
+AddQueueWork<E,T>(E commandType, FunctionType<DoneIDData,T> func)
+
+4.需要引入參數且又有callback的function
+AddQueueWork<E, T>(E commandType, FunctionType<DoneIDData,T, Delegate> func)
+
+
+
+三.刪除希望被執行的function,要將原command及function傳入
+
+1.一般function
+RemoveWork<E>(E commandType,FunctionType<DoneIDData> func)
+
+2.有callback的function
+RemoveWork<E>(E commandType, FunctionType<DoneIDData,Delegate> func)
+
+3.需要引入參數的function
+RemoveWork<E,T>(E commandType, FunctionType<DoneIDData,T> func)
+
+4.需要引入參數且又有callback的function
+RemoveWork<E, T>(E commandType, FunctionType<DoneIDData,T, Delegate> func)
+
+
+
+四.刪除希望被執行且希望進入排程的function,要將原command及function傳入
+
+1.一般function
+RemoveQueueWork<E>(E commandType,FunctionType<DoneIDData> func)
+
+2.有callback的function
+RemoveQueueWork<E>(E commandType, FunctionType<DoneIDData,Delegate> func)
+
+3.需要引入參數的function
+RemoveQueueWork<E,T>(E commandType, FunctionType<DoneIDData,T> func)
+
+4.需要引入參數且又有callback的function
+RemoveQueueWork<E, T>(E commandType, FunctionType<DoneIDData,T, Delegate> func)
+
+
+
+五.刪除全部的command及function
+
+RemoveAllWorks()
+
+
+
+六.執行function
+
+1.一般function
+GoWork<E>(E commandType)
+
+2.有callback的function
+GoWorkWithCallback<E>(E commandType,Delegate inFunc)
+
+3.需要引入參數的function
+GoWorkWithData<E,T>(E commandType,T inData)
+
+4.需要引入參數且又有callback的function
+GoWorkWithDataCallback<E, T>(E commandType,T inData, Delegate inFunc)
+
+
+
+
+七.執行欲排程function
+
+使用說明:
+1.
+比如照以下順序執行
+GoQueue(TestEnum.a)
+GoQueue(TestEnum.b)
+GoQueue(TestEnum.c)
+
+TestEnum.b的function要執行必須等TestEnum.a的function執行完畢且執行ReportFinish(DoneIDData inData)
+進行回報後才會執行,TestEnum.c的function執行時機以此類推
+
+2.
+所有的GoQueue系列執行的function都會進入同一個排程
+比如照以下順序執行
+GoQueue(TestEnum.a)
+
+Test aaa=delegate()
+{
+Debug.Log("TEST");
+}
+
+GoQueueWithCallback(TestEnum.b,aaa)
+GoQueueWithData(TestEnum.c,"TEST")
+
+TestEnum.b的function要執行必須等TestEnum.a的function執行完畢且執行ReportFinish(DoneIDData inData)
+進行回報後才會執行,TestEnum.c的function執行時機以此類推
+
+
+執行:
+
+1.一般function
+GoQueue<E>(E commandType)
+
+2.有callback的function
+GoQueueWithCallback<E>(E commandType,Delegate inFunc)
+
+3.需要引入參數的function
+GoQueueWithData<E,T>(E commandType,T inData)
+
+4.需要引入參數且又有callback的function
+GoQueueWithDataCallback<E, T>(E commandType,T inData, Delegate inFunc)
+
+
+
+8.回報欲排程的function執行完畢
+
+說明:
+將收到的DoneIDData資料原封不動的當作ReportFinish引入值傳入
+
+ReportFinish(DoneIDData inData)
+ 
